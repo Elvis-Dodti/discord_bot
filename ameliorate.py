@@ -173,4 +173,4 @@ async def rank(ctx, member: discord.Member = None):
     await ctx.send(embed=embed)
 
 
-client.run('ODM3NjkzMjIyMjg5NTM5MDgy.YIwQmw.ZP4bwr1k4aKFDTKonr_MeF2xoyQ')
+client.run(input("Enter the token here;\t"))
