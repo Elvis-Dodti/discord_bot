@@ -5,10 +5,7 @@ from discord import User
 
 # OTHER REQUIRED MODULES
 import json
-from PIL import Image, ImageDraw, ImageFont
-import io
 
-# client = discord.Client()
 client = commands.Bot(command_prefix='_')
 
 # EVENTS
@@ -85,8 +82,8 @@ async def ideas(ctx):
         with open('Ideas.txt', 'a') as ideas:
             print(f"{idea}-{user}", file=ideas)
 
-    msg = await client.wait_for("message", check=check)  # take this data and store in text file.
-    print(f'{msg.content}')  # try using .content
+    msg = await client.wait_for("message", check=check)
+    print(f'{msg.content}')
     record_ideas(msg.content, msg.author)
     await channel.send(f"Successfully recorded {msg.author.mention}", mention_author=True)
 
@@ -103,8 +100,8 @@ async def projects(ctx):
         with open('ProjectIdeas.txt', 'a') as project_ideas:
             print(f"{project_idea}-{user}", file=project_ideas)
 
-    msg = await client.wait_for("message", check=check)  # take this data and store in text file.
-    print(f'{msg.content}')  # try using .content
+    msg = await client.wait_for("message", check=check)
+    print(f'{msg.content}')
     record_ideas(msg.content, msg.author)
     await channel.send(f"Successfully recorded {msg.author.mention}", mention_author=True)
 
@@ -121,8 +118,8 @@ async def quotes(ctx):
         with open('Quotes.txt', 'a') as quotes:
             print(f"{quote}-{user}", file=quotes)
 
-    msg = await client.wait_for("message", check=check)  # take this data and store in text file.
-    print(f'{msg.content}')  # try using .content
+    msg = await client.wait_for("message", check=check)
+    print(f'{msg.content}')
     record_ideas(msg.content, msg.author)
     await channel.send(f"Successfully recorded {msg.author.mention}", mention_author=True)
 
@@ -157,20 +154,66 @@ async def rank(ctx, member: discord.Member = None):
     with open('users.json', 'r') as f:
         users = json.load(f)
     lvl = users[str(id)]['level']
-    xp = users[str(id)]["experience"]                  # add if else statement to show message if user has 0xp.
-    boxes = int((xp/(200*((1/2)*lvl)))*20)             # ("YOU HAVENT GIVEN ANY IDEAS,QUOTES,PROJECTS
-    # give the respective to earn points")
-    # rank = int(users[str(id)]['experience'].sort())
-    embed = discord.Embed(description=f"{ctx.message. author.mention}'s Stats")
-    embed.add_field(name="NAME", value=ctx.message.author.mention, inline=True)
-    embed.add_field(name="LEVEL", value=lvl, inline=True)
-    embed.add_field(name="XP", value=xp, inline=True)
-    # embed.add_field(name="RANK",value=,inline=True)
-    embed.add_field(name="PROGRESS", value=boxes*":blue_square:"+(20-boxes)*":white_large_square:", inline=False)
+    xp = users[str(id)]["experience"]
+    if xp == 0:
+        await ctx.send("give ideas,quotes or projects to earn points")
+    else:
+        boxes = int((xp/(200*((1/2)*lvl)))*20)
+        rank_of = int(users[str(id)]['experience'].sort())
+        embed = discord.Embed(description=f"{ctx.message. author.mention}'s Stats")
+        embed.add_field(name="NAME", value=ctx.message.author.mention, inline=True)
+        embed.add_field(name="LEVEL", value=lvl, inline=True)
+        embed.add_field(name="XP", value=xp, inline=True)
+        embed.add_field(name="RANK", value=f"{rank_of}/{ctx.Guild.members}", inline=True)
+        embed.add_field(name="PROGRESS", value=boxes*":blue_square:"+(20-boxes)*":white_large_square:", inline=False)
 
-    embed.set_thumbnail(url=ctx.message.author.avatar_url)
+        embed.set_thumbnail(url=ctx.message.author.avatar_url)
 
-    await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
 
-client.run(input("Enter the token here;\t"))
+@client.command()
+async def show_quotes(ctx):
+    embed1 = discord.Embed(description="Previous 10 Quotes", color=discord.Color.blue())
+    data = []
+    message = ""
+    with open("Quotes.txt", 'r') as qt:
+        for x in qt:
+            print(x)
+            data += [f"{x}".strip("\n")]
+        for i in data:
+            message += f"-{i}\n"
+    embed1.add_field(name="Quotes", value=message, inline=False)
+    await ctx.send(embed=embed1)
+
+
+@client.command()
+async def show_ideas(ctx):
+    embed2 = discord.Embed(description="All ideas", color=discord.Color.blue())
+    data = []
+    message = ""
+    with open("Ideas.txt", 'r') as idd:
+        for x in idd:
+            print(x)
+            data += [f"{x}".strip("\n")]
+        for i in data:
+            message += f"-{i}\n"
+    embed2.add_field(name="Ideas", value=message, inline=False)
+    await ctx.send(embed=embed2)
+
+
+@client.command()
+async def show_projects(ctx):
+    embed3 = discord.Embed(description="All Projects", color=discord.Color.blue())
+    pid = []
+    message = ""
+    with open("ProjectIdeas.txt", 'r') as pi:
+        for x in pi:
+            print(x)
+            pid += [f"{x}".strip("\n")]
+        for i in pid:
+            message += f"-{i}\n"
+    embed3.add_field(name="Projects", value=message, inline=False)
+    await ctx.send(embed=embed3)
+
+client.run(input("Enter the token here;"))
